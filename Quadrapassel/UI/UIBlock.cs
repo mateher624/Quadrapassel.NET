@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Quadrapassel.UI.Abstraction;
 using SFML.Graphics;
 using SFML.System;
 
 namespace Quadrapassel.UI
 {
-    public class UIBlock : IUIElement
+    public class UIBlock : UIElement
     {
         public static int Size = 40;
 
@@ -38,7 +39,7 @@ namespace Quadrapassel.UI
             _transpositionY = transY;
         }
 
-        public void Draw(RenderTarget target, RenderStates states)
+        public override void Draw(RenderTarget target, RenderStates states)
         {
             UpdateBody();
             if (IsVisible)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Quadrapassel.UI;
 using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 
 namespace Quadrapassel
@@ -17,6 +18,8 @@ namespace Quadrapassel
         private readonly UILabel _linesLabel;
         private readonly UILabel _levelNameLabel;
         private readonly UILabel _levelLabel;
+
+        public readonly UIButton _startPauseButton;
 
         private readonly KeyEventManager _keyEventManager;
 
@@ -86,6 +89,15 @@ namespace Quadrapassel
                 Height = 1 * UIBlock.Size,
                 Caption = "0"
             };
+            _startPauseButton = new UIButton
+            {
+                PositionX = 2 * UIBlock.Size + _gameArea.Width,
+                PositionY = 16 * UIBlock.Size,
+                Width = 5 * UIBlock.Size,
+                Height = 2 * UIBlock.Size,
+                Caption = "Start",
+                Action = PlayButtonClick
+            };
 
             _keyEventManager = new KeyEventManager(_game);
             
@@ -124,19 +136,34 @@ namespace Quadrapassel
             _levelLabel.Caption = _game.Level.ToString();
         }
 
+        private void PlayButtonClick()
+        {
+            if (_game.Ready)
+            {
+                NewGame();
+                return;
+            }
+
+            if (!_game.GameOver)
+                _game.Paused = !_game.Paused;
+        }
+
         protected override void CheckCollide(MouseMoveEventArgs e)
         {
-            //throw new NotImplementedException();
+            var coords = Window.MapPixelToCoords(new Vector2i(e.X, e.Y));
+            _startPauseButton.Collide((int)coords.X, (int)coords.Y);
         }
 
         protected override void CheckClick(MouseButtonEventArgs e)
         {
-            //throw new NotImplementedException();
+            var coords = Window.MapPixelToCoords(new Vector2i(e.X, e.Y));
+            _startPauseButton.Clicked((int)coords.X, (int)coords.Y, e.Button);
         }
 
         protected override void CheckUnClick(MouseButtonEventArgs e)
         {
-            //throw new NotImplementedException();
+            var coords = Window.MapPixelToCoords(new Vector2i(e.X, e.Y));
+            _startPauseButton.Unclicked((int)coords.X, (int)coords.Y, e.Button);
         }
 
         protected override void CheckKeyPressed(KeyEventArgs e)
@@ -245,6 +272,7 @@ namespace Quadrapassel
             Window.Draw(_linesLabel);
             Window.Draw(_levelNameLabel);
             Window.Draw(_levelLabel);
+            Window.Draw(_startPauseButton);
         }
     }
 }

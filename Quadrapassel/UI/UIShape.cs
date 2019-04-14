@@ -1,8 +1,9 @@
-﻿using SFML.Graphics;
+﻿using Quadrapassel.UI.Abstraction;
+using SFML.Graphics;
 
 namespace Quadrapassel.UI
 {
-    public class UIShape : IUIElement
+    public class UIShape : UIElement
     {
         private readonly Shape _shape;
 
@@ -20,7 +21,7 @@ namespace Quadrapassel.UI
             _transpositionY = transY;
         }
 
-        public void Draw(RenderTarget target, RenderStates states)
+        public override void Draw(RenderTarget target, RenderStates states)
         {
             //if (IsVisible)
             //    target.Draw(_body, states);

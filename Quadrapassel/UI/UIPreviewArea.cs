@@ -1,10 +1,11 @@
 ﻿using System.Linq;
+using Quadrapassel.UI.Abstraction;
 using SFML.Graphics;
 using SFML.System;
 
 namespace Quadrapassel.UI
 {
-    public class UIPreviewArea : IUIElement
+    public class UIPreviewArea : UIElement
     {
         private readonly Game _gameModel;
 
@@ -24,7 +25,7 @@ namespace Quadrapassel.UI
             IsVisible = true;
         }
 
-        public void Draw(RenderTarget target, RenderStates states)
+        public override void Draw(RenderTarget target, RenderStates states)
         {
             UpdateBody();
             if (IsVisible)
