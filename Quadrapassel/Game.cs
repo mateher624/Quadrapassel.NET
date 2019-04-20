@@ -10,7 +10,7 @@ namespace Quadrapassel
     {
         private const int NColors = 7;
 
-        private static readonly int[] BlockTable = { 
+        private static readonly int[] blockTable = { 
             /* *** */
             /* *   */
             0, 0, 0, 0,
@@ -314,35 +314,36 @@ namespace Quadrapassel
                 NextShape = PickRandomShape();
 
             Ready = true;
+            GameOver = false;
         }
 
         public Game Copy()
         {
-            var g = new Game();
+            var game = new Game();
             if (Shape != null)
-                g.Shape = Shape.Copy();
+                game.Shape = Shape.Copy();
             if (NextShape != null)
-                g.NextShape = NextShape.Copy();
+                game.NextShape = NextShape.Copy();
             for (var x = 0; x < Width; x++)
             {
                 for (var y = 0; y < Height; y++)
                 {
                     if (Blocks[x, y] != null)
-                        g.Blocks[x, y] = Blocks[x, y].Copy();
+                        game.Blocks[x, y] = Blocks[x, y].Copy();
                 }
             }
 
-            g.NLinesDestroyed = NLinesDestroyed;
-            g.Score = Score;
-            g._startingLevel = _startingLevel;
-            g._pickDifficultBlocks = _pickDifficultBlocks;
-            g._fastMoveDirection = _fastMoveDirection;
-            g._fastForward = _fastForward;
-            g._hasStarted = _hasStarted;
-            g._paused = _paused;
-            g.GameOver = GameOver;
+            game.NLinesDestroyed = NLinesDestroyed;
+            game.Score = Score;
+            game._startingLevel = _startingLevel;
+            game._pickDifficultBlocks = _pickDifficultBlocks;
+            game._fastMoveDirection = _fastMoveDirection;
+            game._fastForward = _fastForward;
+            game._hasStarted = _hasStarted;
+            game._paused = _paused;
+            game.GameOver = GameOver;
 
-            return g;
+            return game;
         }
 
         public void Start()
@@ -651,7 +652,7 @@ namespace Quadrapassel
             {
                 for (var y = 0; y < 4; y++)
                 {
-                    if (BlockTable[offset + y * 4 + x] == 0)
+                    if (blockTable[offset + y * 4 + x] == 0)
                         continue;
 
                     minWidth = Math.Min(x, minWidth);
@@ -832,7 +833,7 @@ namespace Quadrapassel
             Shape.Rotation = r;
 
             /* Rearrange current blocks */
-            List<Block> blocks = Shape.Blocks;
+            var blocks = Shape.Blocks;
             var offset = Shape.Type * 64 + r * 16;
 
             blocks.Clear();
@@ -840,7 +841,7 @@ namespace Quadrapassel
             {
                 for (var y = 0; y < 4; y++)
                 {
-                    if (BlockTable[offset + y * 4 + x] != 0)
+                    if (blockTable[offset + y * 4 + x] != 0)
                     {                     
                         blocks.Add(new Block
                         {

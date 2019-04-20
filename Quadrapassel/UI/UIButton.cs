@@ -101,7 +101,7 @@ namespace Quadrapassel.UI
             _text = new Text
             {
                 Font = font,
-                Origin = new Vector2f(40, 40),
+                Origin = new Vector2f(UIBlock.Size, UIBlock.Size),
                 Position = new Vector2f(PositionX + Width / 2, PositionY + Height / 2),
                 DisplayedString = Caption,
                 FillColor = Color.Black

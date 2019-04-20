@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Quadrapassel.UI.Abstraction;
+﻿using Quadrapassel.UI.Abstraction;
 using SFML.Graphics;
 using SFML.System;
 
@@ -13,8 +8,8 @@ namespace Quadrapassel.UI
     {
         public static int Size = 40;
 
-        private int _width => Size;
-        private int _height => Size;
+        private static int Width => Size;
+        private static int Height => Size;
 
         private readonly int _transpositionX;
         private readonly int _transpositionY;
@@ -51,7 +46,7 @@ namespace Quadrapassel.UI
             _body = new RectangleShape
             {
                 Position = new Vector2f(PositionX * Size + _transpositionX, PositionY * Size + _transpositionY),
-                Size = new Vector2f(_width, _height),
+                Size = new Vector2f(Width, Height),
                 FillColor = ColorConverter.Convert(_blockModel.Color)
             };
         }

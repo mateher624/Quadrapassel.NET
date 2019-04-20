@@ -1,20 +1,33 @@
 ﻿using System;
 using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 
 namespace Quadrapassel
 {
     public abstract class Scene
     {
+        public readonly Settings Settings;
+
         protected RenderWindow Window;
         protected Color ClearColor;
 
         protected bool ReturnState;
 
-        protected Scene(uint width, uint height, string name, Color clearColor)
+        protected Scene(Settings settings)
         {
-            Window = new RenderWindow(new VideoMode(width, height), name, Styles.Default);
-            ClearColor = clearColor;
+            Settings = settings;
+            Window = new RenderWindow(
+                new VideoMode(
+                    settings.WindowSettings.WindowWidth, 
+                    settings.WindowSettings.WindowHeight
+                ), 
+                settings.WindowSettings.WindowName, 
+                Styles.Default
+            );
+            Window.SetFramerateLimit(settings.WindowSettings.FrameLimit);
+            ClearColor = settings.WindowSettings.BackgroundColor;
+            Window.Resized += Resized;
 
             Window.Closed += OnClosed;
             Window.KeyPressed += WindowKeyPressed;
@@ -92,6 +105,14 @@ namespace Quadrapassel
         {
             ReturnState = false;
             Window.Close();
+        }
+
+        private void Resized(object sender, EventArgs e)
+        {
+            Window.Size = new Vector2u(
+                Settings.WindowSettings.WindowWidth,
+                Settings.WindowSettings.WindowHeight
+            );
         }
     }
 }

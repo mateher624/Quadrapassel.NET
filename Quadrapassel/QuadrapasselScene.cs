@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Quadrapassel.UI;
 using SFML.Graphics;
 using SFML.System;
@@ -18,25 +17,33 @@ namespace Quadrapassel
         private readonly UILabel _linesLabel;
         private readonly UILabel _levelNameLabel;
         private readonly UILabel _levelLabel;
+        private readonly UIButton _startPauseButton;
 
-        public readonly UIButton _startPauseButton;
+        private readonly UILabel _stateLabel;
 
-        private readonly KeyEventManager _keyEventManager;
-
-        public QuadrapasselScene(/*uint width, uint height, string name, Color clearColor*/) : base(1200, 1200, "Quadrapassel", Color.White)
+        public QuadrapasselScene(Settings settings) : base(settings)
         {
-
-            _game = new Game(20, 14, 1, 20, 10);
+            _game = new Game(
+                settings.GameSettings.Lines, 
+                settings.GameSettings.Columns, 
+                settings.GameSettings.StartingLevel, 
+                settings.GameSettings.Lines, 
+                10
+            );
             _game.ShapeLanded += ShapeLandedCb;
+            _game.PauseChanged += PauseChangedCb;
+            _game.Complete += CompleteCb;
+            _game.Started += StartedCb;
+
             _gameArea = new UIGameArea(_game)
             {
-                PositionX = 40,
-                PositionY = 40
+                PositionX = UIBlock.Size,
+                PositionY = UIBlock.Size
             };
             _previewArea = new UIPreviewArea(_game)
             {
-                PositionX = 40 + _gameArea.Width + 40,
-                PositionY = 40
+                PositionX = UIBlock.Size + _gameArea.Width + UIBlock.Size,
+                PositionY = UIBlock.Size
             };
 
             _scoreNameLabel = new UILabel
@@ -45,6 +52,8 @@ namespace Quadrapassel
                 PositionY = 7 * UIBlock.Size,
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
+                OutlineThickness = 0,
+                TextColor = Color.Black,
                 Caption = "Score"
             };
             _scoreLabel = new UILabel
@@ -53,6 +62,8 @@ namespace Quadrapassel
                 PositionY = 8 * UIBlock.Size,
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
+                OutlineThickness = 0,
+                TextColor = Color.Black,
                 Caption = "0"
             };
 
@@ -62,6 +73,8 @@ namespace Quadrapassel
                 PositionY = 10 * UIBlock.Size,
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
+                OutlineThickness = 0,
+                TextColor = Color.Black,
                 Caption = "Lines"
             };
             _linesLabel = new UILabel
@@ -70,6 +83,8 @@ namespace Quadrapassel
                 PositionY = 11 * UIBlock.Size,
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
+                OutlineThickness = 0,
+                TextColor = Color.Black,
                 Caption = "0"
             };
 
@@ -79,6 +94,8 @@ namespace Quadrapassel
                 PositionY = 13 * UIBlock.Size,
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
+                OutlineThickness = 0,
+                TextColor = Color.Black,
                 Caption = "Level"
             };
             _levelLabel = new UILabel
@@ -87,6 +104,8 @@ namespace Quadrapassel
                 PositionY = 14 * UIBlock.Size,
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
+                OutlineThickness = 0,
+                TextColor = Color.Black,
                 Caption = "0"
             };
             _startPauseButton = new UIButton
@@ -98,9 +117,16 @@ namespace Quadrapassel
                 Caption = "Start",
                 Action = PlayButtonClick
             };
-
-            _keyEventManager = new KeyEventManager(_game);
-            
+            _stateLabel = new UILabel
+            {
+                PositionX = _gameArea.PositionX,
+                PositionY = _gameArea.PositionY,
+                Width = _gameArea.Width,
+                Height = _gameArea.Height,
+                FontSize = 2 * UIBlock.Size,
+                Caption = "Test",
+                IsVisible = false
+            };
         }
 
         private void NewGame()
@@ -115,7 +141,12 @@ namespace Quadrapassel
             //_game.complete.connect(CompleteCb);
             //_preview.game = _game;
             //_view.game = _game;
-            _game.Reset();
+            _game.Reset(
+                Settings.GameSettings.StartingLevel,
+                Settings.GameSettings.FilledLines,
+                Settings.GameSettings.FillProb,
+                Settings.GameSettings.PickDifficultBlocks
+            );
 
             _game.Start();
 
@@ -138,7 +169,7 @@ namespace Quadrapassel
 
         private void PlayButtonClick()
         {
-            if (_game.Ready)
+            if (_game.Ready || _game.GameOver)
             {
                 NewGame();
                 return;
@@ -185,7 +216,10 @@ namespace Quadrapassel
             if (keyCode == Keyboard.Key.Space)
             {
                 if (!_game.GameOver)
+                {
                     _game.Paused = !_game.Paused;
+                    PauseChangedCb();
+                }
                 return;
             }
 
@@ -225,6 +259,40 @@ namespace Quadrapassel
                 _game.Drop();
                 return;
             }
+        }
+
+        public void CompleteCb()
+        {
+            if (_game.GameOver)
+            {
+                _stateLabel.Caption = "Game Over";
+                _stateLabel.IsVisible = true;
+                _startPauseButton.Caption = "New Game";
+            }
+            else
+            {
+                _stateLabel.IsVisible = false;
+            }
+        }
+
+        public void PauseChangedCb()
+        {
+            if (_game.Paused)
+            {
+                _startPauseButton.Caption = "Resume";
+                _stateLabel.Caption = "Paused";
+                _stateLabel.IsVisible = true;
+            }
+            else
+            {
+                _startPauseButton.Caption = "Pause";
+                _stateLabel.IsVisible = false;
+            }
+        }
+
+        private void StartedCb()
+        {
+            _stateLabel.IsVisible = false;
         }
 
         protected override void CheckKeyReleased(KeyEventArgs e)
@@ -273,6 +341,7 @@ namespace Quadrapassel
             Window.Draw(_levelNameLabel);
             Window.Draw(_levelLabel);
             Window.Draw(_startPauseButton);
+            Window.Draw(_stateLabel);
         }
     }
 }

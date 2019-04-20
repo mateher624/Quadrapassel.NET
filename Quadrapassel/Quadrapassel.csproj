@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1BBEBA9F-9E97-433D-8C52-83D2058897D3}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>Quadrapassel</RootNamespace>
     <AssemblyName>Quadrapassel</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SFML.Audio, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -59,6 +62,7 @@
     <Compile Include="ColorConverter.cs" />
     <Compile Include="EventTimerManager.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="GameSettings.cs" />
     <Compile Include="GameView.cs" />
     <Compile Include="KeyEventManager.cs" />
     <Compile Include="KeyEvents\Abstraction\KeyPressedEventDispatchStrategy.cs" />
@@ -68,6 +72,7 @@
     <Compile Include="Quadrapassel.cs" />
     <Compile Include="QuadrapasselScene.cs" />
     <Compile Include="Scene.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Shape.cs" />
     <Compile Include="UI\Abstraction\IClickable.cs" />
     <Compile Include="UI\Abstraction\ICollidable.cs" />
@@ -76,9 +81,11 @@
     <Compile Include="UI\Abstraction\UIElement.cs" />
     <Compile Include="UI\UIButton.cs" />
     <Compile Include="UI\UIGameArea.cs" />
+    <Compile Include="UI\UIGameStateLabel.cs" />
     <Compile Include="UI\UILabel.cs" />
     <Compile Include="UI\UIPreviewArea.cs" />
     <Compile Include="UI\UIShape.cs" />
+    <Compile Include="WindowSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
