@@ -1,4 +1,5 @@
 ﻿using Quadrapassel.UI.Abstraction;
+using Quadrapassel.UI.Themes;
 using SFML.Graphics;
 using SFML.System;
 
@@ -17,6 +18,7 @@ namespace Quadrapassel.UI
         private readonly Block _blockModel;
 
         private RectangleShape _body;
+        private Sprite _sprite;
 
         public int PositionX => _blockModel?.X ?? 0;
         public int PositionY => _blockModel?.Y ?? 0;
@@ -38,7 +40,7 @@ namespace Quadrapassel.UI
         {
             UpdateBody();
             if (IsVisible)
-                target.Draw(_body, states);
+                target.Draw(_sprite, states);
         }
 
         private void UpdateBody()
@@ -47,7 +49,15 @@ namespace Quadrapassel.UI
             {
                 Position = new Vector2f(PositionX * Size + _transpositionX, PositionY * Size + _transpositionY),
                 Size = new Vector2f(Width, Height),
-                FillColor = ColorConverter.Convert(_blockModel.Color)
+                FillColor = ColorConverter.Convert(_blockModel.Color),
+            };
+            _sprite = new Sprite
+            {
+                Texture = ThemeManager.GlobalTheme.BlockTexture,
+                TextureRect = new IntRect(0, 0, 1024, 1024),
+                Position = new Vector2f(PositionX * Size + _transpositionX, PositionY * Size + _transpositionY),
+                Color = ColorConverter.Convert(_blockModel.Color),
+                Scale = new Vector2f((float)Width / 1024, (float)Height / 1024)
             };
         }
     }

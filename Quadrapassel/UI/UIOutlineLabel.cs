@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace Quadrapassel.UI
 {
-    public class UIGameStateLabel : UILabel
+    class UIOutlineLabel : UILabel
     {
-
     }
 }

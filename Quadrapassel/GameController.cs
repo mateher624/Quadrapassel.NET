@@ -76,7 +76,7 @@ namespace Quadrapassel
             _game?.Start();
         }
 
-        public void Resume()
+        public void TogglePause()
         {
             if (_game != null)
                 _game.Paused = !_game.Paused;

@@ -1,6 +1,7 @@
 ﻿using System;
 using Quadrapassel.UI.Abstraction;
 using Quadrapassel.UI.States;
+using Quadrapassel.UI.Themes;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -9,7 +10,13 @@ namespace Quadrapassel.UI
 {
     public class UIButton : UIElement, ICollidable, IClickable
     {
-        private static readonly Font font = new Font("./Resources/arial.ttf");
+        private static Font Font => ThemeManager.GlobalTheme.Font;
+
+        private static Color FontColor => ThemeManager.GlobalTheme.FontColor;
+        private static Color IdleColor => ThemeManager.GlobalTheme.SecondaryColor;
+        private static Color HoveredColor => ThemeManager.GlobalTheme.PrimaryHoveredColor;
+        private static Color DisabledColor => ThemeManager.GlobalTheme.DisabledColor;
+        private static Color ClickedColor => ThemeManager.GlobalTheme.ClickedColor;
 
         private ButtonState _state;
         private RectangleShape _body;
@@ -100,11 +107,11 @@ namespace Quadrapassel.UI
 
             _text = new Text
             {
-                Font = font,
+                Font = Font,
                 Origin = new Vector2f(UIBlock.Size, UIBlock.Size),
                 Position = new Vector2f(PositionX + Width / 2, PositionY + Height / 2),
                 DisplayedString = Caption,
-                FillColor = Color.Black
+                FillColor = FontColor
             };
             var bounds = _text.GetLocalBounds();
             _text.Origin = new Vector2f(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2);
@@ -112,16 +119,16 @@ namespace Quadrapassel.UI
             switch (_state)
             {
                 case ButtonState.Enabled:
-                    _body.FillColor = Color.Red;
+                    _body.FillColor = IdleColor;
                     break;
                 case ButtonState.Disabled:
-                    _body.FillColor = Color.Black;
+                    _body.FillColor = DisabledColor;
                     break;
                 case ButtonState.Hovered:
-                    _body.FillColor = Color.Yellow;
+                    _body.FillColor = HoveredColor;
                     break;
                 case ButtonState.Clicked:
-                    _body.FillColor = Color.Green;
+                    _body.FillColor = ClickedColor;
                     break;
             }
         } 

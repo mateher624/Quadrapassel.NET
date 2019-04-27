@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Quadrapassel.UI;
+using Quadrapassel.UI.Themes;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -9,6 +10,8 @@ namespace Quadrapassel
     public class QuadrapasselScene : Scene
     {
         private readonly GameController _gameController;
+        private readonly HighScoresTable _highScoresTable;
+
         private readonly UIGameArea _gameArea;
         private readonly UIPreviewArea _previewArea;
         private readonly UILabel _scoreNameLabel;
@@ -18,12 +21,16 @@ namespace Quadrapassel
         private readonly UILabel _levelNameLabel;
         private readonly UILabel _levelLabel;
         private readonly UIButton _startPauseButton;
+        private readonly UIButton _scoresButton;
+
+        private readonly UIScoresPresenter _scoresPresenter;
 
         private readonly UILabel _stateLabel;
 
         public QuadrapasselScene(Settings settings) : base(settings)
         {
             _gameController = new GameController(settings.GameSettings);
+            _highScoresTable = HighScoresTable.LoadScores();
 
             _gameController.ShapeLanded += ShapeLandedCb;
             _gameController.PauseChanged += PauseChangedCb;
@@ -43,6 +50,15 @@ namespace Quadrapassel
                 PositionY = UIBlock.Size
             };
 
+            _scoresPresenter = new UIScoresPresenter(_highScoresTable)
+            {
+                PositionX = UIBlock.Size,
+                PositionY = UIBlock.Size,
+                Width = _gameArea.Width,
+                Height = _gameArea.Height,
+                IsVisible = false
+            };
+
             _scoreNameLabel = new UILabel
             {
                 PositionX = 2 * UIBlock.Size + _gameArea.Width,
@@ -50,7 +66,6 @@ namespace Quadrapassel
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
                 OutlineThickness = 0,
-                TextColor = Color.Black,
                 Caption = "Score"
             };
             _scoreLabel = new UILabel
@@ -60,7 +75,6 @@ namespace Quadrapassel
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
                 OutlineThickness = 0,
-                TextColor = Color.Black,
                 Caption = "0"
             };
 
@@ -71,7 +85,6 @@ namespace Quadrapassel
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
                 OutlineThickness = 0,
-                TextColor = Color.Black,
                 Caption = "Lines"
             };
             _linesLabel = new UILabel
@@ -81,7 +94,6 @@ namespace Quadrapassel
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
                 OutlineThickness = 0,
-                TextColor = Color.Black,
                 Caption = "0"
             };
 
@@ -92,7 +104,6 @@ namespace Quadrapassel
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
                 OutlineThickness = 0,
-                TextColor = Color.Black,
                 Caption = "Level"
             };
             _levelLabel = new UILabel
@@ -102,7 +113,6 @@ namespace Quadrapassel
                 Width = 5 * UIBlock.Size,
                 Height = 1 * UIBlock.Size,
                 OutlineThickness = 0,
-                TextColor = Color.Black,
                 Caption = "0"
             };
             _startPauseButton = new UIButton
@@ -114,6 +124,15 @@ namespace Quadrapassel
                 Caption = "Start",
                 Action = PlayButtonClick
             };
+            _scoresButton = new UIButton
+            {
+                PositionX = 2 * UIBlock.Size + _gameArea.Width,
+                PositionY = 19 * UIBlock.Size,
+                Width = 5 * UIBlock.Size,
+                Height = 2 * UIBlock.Size,
+                Caption = "High Scores",
+                Action = ShowScores
+            };
             _stateLabel = new UILabel
             {
                 PositionX = _gameArea.PositionX,
@@ -121,6 +140,7 @@ namespace Quadrapassel
                 Width = _gameArea.Width,
                 Height = _gameArea.Height,
                 FontSize = 2 * UIBlock.Size,
+                OutlineThickness = 2,
                 Caption = "Test",
                 IsVisible = false
             };
@@ -128,24 +148,10 @@ namespace Quadrapassel
 
         private void NewGame()
         {
-
             _gameController.Stop();
-            //SignalHandler.disconnect_matched(_game, SignalMatchType.DATA, 0, 0, null, null, this);
-
-            //_game = new Game(20, 14, _settings.get_int("starting-level"), _settings.get_int("line-fill-height"), _settings.get_int("line-fill-probability"), _settings.get_boolean("pick-difficult-blocks"));
-            //_game.pause_changed.connect(PauseChangedCb);
-            //_game.shape_landed.connect(ShapeLandedCb);
-            //_game.complete.connect(CompleteCb);
-            //_preview.game = _game;
-            //_view.game = _game;
-
             _gameController.NewGame();
-
             _gameController.Start();
-
             UpdateScore();
-            //_pauseAction.set_enabled(true);
-            //_pausePlayButton.action_name = "app.pause";
         }
 
         private void ShapeLandedCb(int[] lines, List<Block> lineBlocks)
@@ -162,6 +168,7 @@ namespace Quadrapassel
 
         private void PlayButtonClick()
         {
+            _scoresPresenter.IsVisible = false;
             if (_gameController.Ready || _gameController.GameOver)
             {
                 NewGame();
@@ -169,25 +176,45 @@ namespace Quadrapassel
             }
 
             if (!_gameController.GameOver)
-                _gameController.Resume();
+                _gameController.TogglePause();
+        }
+
+        private void ShowScores()
+        {
+            if (_scoresPresenter.IsVisible)
+            {
+                _scoresPresenter.IsVisible = false;
+            }
+            else
+            {
+                _scoresPresenter.IsVisible = true;
+                if (!_gameController.Ready && !_gameController.GameOver)
+                {
+                    if (!_gameController.Paused)
+                        _gameController.TogglePause();
+                }
+            }
         }
 
         protected override void CheckCollide(MouseMoveEventArgs e)
         {
             var coords = Window.MapPixelToCoords(new Vector2i(e.X, e.Y));
             _startPauseButton.Collide((int)coords.X, (int)coords.Y);
+            _scoresButton.Collide((int)coords.X, (int)coords.Y);
         }
 
         protected override void CheckClick(MouseButtonEventArgs e)
         {
             var coords = Window.MapPixelToCoords(new Vector2i(e.X, e.Y));
             _startPauseButton.Clicked((int)coords.X, (int)coords.Y, e.Button);
+            _scoresButton.Clicked((int)coords.X, (int)coords.Y, e.Button);
         }
 
         protected override void CheckUnClick(MouseButtonEventArgs e)
         {
             var coords = Window.MapPixelToCoords(new Vector2i(e.X, e.Y));
             _startPauseButton.Unclicked((int)coords.X, (int)coords.Y, e.Button);
+            _scoresButton.Unclicked((int)coords.X, (int)coords.Y, e.Button);
         }
 
         protected override void CheckKeyPressed(KeyEventArgs e)
@@ -199,6 +226,7 @@ namespace Quadrapassel
                 // Pressing pause with no game will start a new game.
                 if (keyCode == Keyboard.Key.Space)
                 {
+                    _scoresPresenter.IsVisible = false;
                     NewGame();
                     return;
                 }
@@ -210,7 +238,9 @@ namespace Quadrapassel
             {
                 if (!_gameController.GameOver)
                 {
-                    _gameController.Resume();
+                    _gameController.TogglePause();
+                    if (_scoresPresenter.IsVisible)
+                      _scoresPresenter.IsVisible = false;
                     PauseChangedCb();
                 }
                 return;
@@ -266,6 +296,10 @@ namespace Quadrapassel
             {
                 _stateLabel.IsVisible = false;
             }
+
+            _highScoresTable.AddScore(_gameController.Score);
+            HighScoresTable.SaveScore(_highScoresTable);
+            _scoresPresenter.IsVisible = true;
         }
 
         public void PauseChangedCb()
@@ -314,7 +348,8 @@ namespace Quadrapassel
 
         protected override void Initialize()
         {
-            //throw new NotImplementedException();
+            ThemeManager.SetTheme(Theme.Dark);
+            ClearColor = ThemeManager.GlobalTheme.BackgroundColor;
         }
 
         protected override void Tick()
@@ -335,6 +370,8 @@ namespace Quadrapassel
             Window.Draw(_levelLabel);
             Window.Draw(_startPauseButton);
             Window.Draw(_stateLabel);
+            Window.Draw(_scoresButton);
+            Window.Draw(_scoresPresenter);
         }
     }
 }

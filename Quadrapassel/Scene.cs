@@ -1,4 +1,5 @@
 ﻿using System;
+using Quadrapassel.UI.Themes;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -26,7 +27,6 @@ namespace Quadrapassel
                 Styles.Default
             );
             Window.SetFramerateLimit(settings.WindowSettings.FrameLimit);
-            ClearColor = settings.WindowSettings.BackgroundColor;
             Window.Resized += Resized;
 
             Window.Closed += OnClosed;
