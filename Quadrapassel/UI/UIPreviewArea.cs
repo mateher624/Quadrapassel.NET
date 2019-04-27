@@ -7,21 +7,20 @@ namespace Quadrapassel.UI
 {
     public class UIPreviewArea : UIElement
     {
-        private readonly Game _gameModel;
+        private readonly GameController _gameController;
 
         public int Width => 5 * UIBlock.Size;
         public int Height => 5 * UIBlock.Size;
 
-        //private Sprite _body;
         private RectangleShape _body;
 
         public int PositionX { get; set; }
         public int PositionY { get; set; }
         public bool IsVisible { get; set; }
 
-        public UIPreviewArea(Game gameModel)
+        public UIPreviewArea(GameController gameController)
         {
-            _gameModel = gameModel;
+            _gameController = gameController;
             IsVisible = true;
         }
 
@@ -36,14 +35,18 @@ namespace Quadrapassel.UI
 
         private void DrawBlock(RenderTarget target, RenderStates states)
         {
-            if (_gameModel.NextShape != null)
+            if (_gameController.Game != null)
             {
-                var shapeWidth = _gameModel.NextShape.Blocks.Max(b => b.X) - _gameModel.NextShape.Blocks.Min(b => b.X) + 1;
-                var shapeHeight = _gameModel.NextShape.Blocks.Max(b => b.Y) - _gameModel.NextShape.Blocks.Min(b => b.Y) + 1;
-                var shape = new UIShape(_gameModel.NextShape, 
-                    PositionX + (Width  - shapeWidth  * UIBlock.Size) / 2 - (_gameModel.NextShape.X + _gameModel.NextShape.Blocks.Min(b => b.X) ) * UIBlock.Size,
-                    PositionY + (Height - shapeHeight * UIBlock.Size) / 2 - (_gameModel.NextShape.Y + _gameModel.NextShape.Blocks.Min(b => b.Y) ) * UIBlock.Size);
-                shape.Draw(target, states);
+                var nextShape = _gameController.Game.NextShape;
+                if (nextShape != null)
+                {
+                    var shapeWidth = nextShape.Blocks.Max(b => b.X) - nextShape.Blocks.Min(b => b.X) + 1;
+                    var shapeHeight = nextShape.Blocks.Max(b => b.Y) - nextShape.Blocks.Min(b => b.Y) + 1;
+                    var shape = new UIShape(nextShape,
+                        PositionX + (Width - shapeWidth * UIBlock.Size) / 2 - (nextShape.X + nextShape.Blocks.Min(b => b.X)) * UIBlock.Size,
+                        PositionY + (Height - shapeHeight * UIBlock.Size) / 2 - (nextShape.Y + nextShape.Blocks.Min(b => b.Y)) * UIBlock.Size);
+                    shape.Draw(target, states);
+                }
             }
         }
 

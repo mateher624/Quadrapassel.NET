@@ -8,7 +8,7 @@ namespace Quadrapassel
 {
     public class QuadrapasselScene : Scene
     {
-        private readonly Game _game;
+        private readonly GameController _gameController;
         private readonly UIGameArea _gameArea;
         private readonly UIPreviewArea _previewArea;
         private readonly UILabel _scoreNameLabel;
@@ -23,24 +23,21 @@ namespace Quadrapassel
 
         public QuadrapasselScene(Settings settings) : base(settings)
         {
-            _game = new Game(
-                settings.GameSettings.Lines, 
-                settings.GameSettings.Columns, 
-                settings.GameSettings.StartingLevel, 
-                settings.GameSettings.Lines, 
-                10
-            );
-            _game.ShapeLanded += ShapeLandedCb;
-            _game.PauseChanged += PauseChangedCb;
-            _game.Complete += CompleteCb;
-            _game.Started += StartedCb;
+            _gameController = new GameController(settings.GameSettings);
 
-            _gameArea = new UIGameArea(_game)
+            _gameController.ShapeLanded += ShapeLandedCb;
+            _gameController.PauseChanged += PauseChangedCb;
+            _gameController.Complete += CompleteCb;
+            _gameController.Started += StartedCb;
+
+            _gameController.SetMozaic();
+
+            _gameArea = new UIGameArea(_gameController)
             {
                 PositionX = UIBlock.Size,
                 PositionY = UIBlock.Size
             };
-            _previewArea = new UIPreviewArea(_game)
+            _previewArea = new UIPreviewArea(_gameController)
             {
                 PositionX = UIBlock.Size + _gameArea.Width + UIBlock.Size,
                 PositionY = UIBlock.Size
@@ -132,7 +129,7 @@ namespace Quadrapassel
         private void NewGame()
         {
 
-            _game.Stop();
+            _gameController.Stop();
             //SignalHandler.disconnect_matched(_game, SignalMatchType.DATA, 0, 0, null, null, this);
 
             //_game = new Game(20, 14, _settings.get_int("starting-level"), _settings.get_int("line-fill-height"), _settings.get_int("line-fill-probability"), _settings.get_boolean("pick-difficult-blocks"));
@@ -141,14 +138,10 @@ namespace Quadrapassel
             //_game.complete.connect(CompleteCb);
             //_preview.game = _game;
             //_view.game = _game;
-            _game.Reset(
-                Settings.GameSettings.StartingLevel,
-                Settings.GameSettings.FilledLines,
-                Settings.GameSettings.FillProb,
-                Settings.GameSettings.PickDifficultBlocks
-            );
 
-            _game.Start();
+            _gameController.NewGame();
+
+            _gameController.Start();
 
             UpdateScore();
             //_pauseAction.set_enabled(true);
@@ -162,21 +155,21 @@ namespace Quadrapassel
 
         private void UpdateScore()
         {
-            _scoreLabel.Caption = _game.Score.ToString();
-            _linesLabel.Caption = _game.NLinesDestroyed.ToString();
-            _levelLabel.Caption = _game.Level.ToString();
+            _scoreLabel.Caption = _gameController.Score.ToString();
+            _linesLabel.Caption = _gameController.NLinesDestroyed.ToString();
+            _levelLabel.Caption = _gameController.Level.ToString();
         }
 
         private void PlayButtonClick()
         {
-            if (_game.Ready || _game.GameOver)
+            if (_gameController.Ready || _gameController.GameOver)
             {
                 NewGame();
                 return;
             }
 
-            if (!_game.GameOver)
-                _game.Paused = !_game.Paused;
+            if (!_gameController.GameOver)
+                _gameController.Resume();
         }
 
         protected override void CheckCollide(MouseMoveEventArgs e)
@@ -201,7 +194,7 @@ namespace Quadrapassel
         {
             var keyCode = e.Code;
 
-            if (_game.Ready)
+            if (_gameController.Ready)
             {
                 // Pressing pause with no game will start a new game.
                 if (keyCode == Keyboard.Key.Space)
@@ -215,26 +208,26 @@ namespace Quadrapassel
 
             if (keyCode == Keyboard.Key.Space)
             {
-                if (!_game.GameOver)
+                if (!_gameController.GameOver)
                 {
-                    _game.Paused = !_game.Paused;
+                    _gameController.Resume();
                     PauseChangedCb();
                 }
                 return;
             }
 
-            if (_game.Paused)
+            if (_gameController.Paused)
                 return;
 
             if (keyCode == Keyboard.Key.Left)
             {
-                _game.MoveLeft();
+                _gameController.MoveLeft();
                 return;
             }
 
             if (keyCode == Keyboard.Key.Right)
             {
-                _game.MoveRight();
+                _gameController.MoveRight();
                 return;
             }
 
@@ -244,26 +237,26 @@ namespace Quadrapassel
                 //    _game.rotate_left();
                 //else
                 //    _game.rotate_right();
-                _game.RotateRight();
+                _gameController.RotateRight();
                 return;
             }
 
             if (keyCode == Keyboard.Key.Down)
             {
-                _game.SetFastForward(true);
+                _gameController.SetFastForward(true);
                 return;
             }
 
             if (keyCode == Keyboard.Key.Enter)
             {
-                _game.Drop();
+                _gameController.Drop();
                 return;
             }
         }
 
         public void CompleteCb()
         {
-            if (_game.GameOver)
+            if (_gameController.GameOver)
             {
                 _stateLabel.Caption = "Game Over";
                 _stateLabel.IsVisible = true;
@@ -277,7 +270,7 @@ namespace Quadrapassel
 
         public void PauseChangedCb()
         {
-            if (_game.Paused)
+            if (_gameController.Paused)
             {
                 _startPauseButton.Caption = "Resume";
                 _stateLabel.Caption = "Paused";
@@ -299,17 +292,17 @@ namespace Quadrapassel
         {
             var keyCode = e.Code;
 
-            if (_game.Ready)
+            if (_gameController.Ready)
                 return;
 
             if (keyCode == Keyboard.Key.Left || keyCode == Keyboard.Key.Right)
             {
-                _game.StopMoving();
+                _gameController.StopMoving();
                 return;
             }
             if (keyCode == Keyboard.Key.Down)
             {
-                _game.SetFastForward(false);
+                _gameController.SetFastForward(false);
                 return;
             }
         }

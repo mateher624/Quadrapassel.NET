@@ -6,10 +6,10 @@ namespace Quadrapassel.UI
 {
     public class UIGameArea : UIElement
     {
-        private readonly Game _gameModel;
+        private readonly GameController _gameController;
 
-        public int Width => _gameModel.Width * UIBlock.Size;
-        public int Height => _gameModel.Height * UIBlock.Size;
+        public int Width => _gameController.Width * UIBlock.Size;
+        public int Height => _gameController.Height * UIBlock.Size;
 
         //private Sprite _body;
         private RectangleShape _body;
@@ -18,9 +18,9 @@ namespace Quadrapassel.UI
         public int PositionY { get; set; }
         public bool IsVisible { get; set; }
 
-        public UIGameArea(Game gameModel)
+        public UIGameArea(GameController gameController)
         {
-            _gameModel = gameModel;
+            _gameController = gameController;
             IsVisible = true;
         }
 
@@ -35,23 +35,26 @@ namespace Quadrapassel.UI
 
         private void DrawBlocks(RenderTarget target, RenderStates states)
         {
-            for (var i = 0; i < _gameModel.Width; i++)
+            if (_gameController.Game != null)
             {
-                for (var j = 0; j < _gameModel.Height; j++)
+                for (var i = 0; i < _gameController.Game.Width; i++)
                 {
-                    if (_gameModel.Blocks[i, j] != null)
+                    for (var j = 0; j < _gameController.Game.Height; j++)
                     {
-                        var block = new UIBlock(_gameModel.Blocks[i, j], PositionX, PositionY);
-                        block.Draw(target, states);
+                        if (_gameController.Game.Blocks[i, j] != null)
+                        {
+                            var block = new UIBlock(_gameController.Game.Blocks[i, j], PositionX, PositionY);
+                            block.Draw(target, states);
+                        }
                     }
                 }
-            }
 
-            if (_gameModel.Shape != null)
-            {
-                var shape = new UIShape(_gameModel.Shape, PositionX, PositionY);
-                shape.Draw(target, states);
-            }
+                if (_gameController.Game?.Shape != null)
+                {
+                    var shape = new UIShape(_gameController.Game.Shape, PositionX, PositionY);
+                    shape.Draw(target, states);
+                }
+            }           
         }
 
         private void UpdateBody()

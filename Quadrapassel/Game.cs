@@ -243,7 +243,6 @@ namespace Quadrapassel
         }
 
         public bool GameOver;
-
         public bool Ready;
 
         public event EventHandler Started;
@@ -255,34 +254,9 @@ namespace Quadrapassel
         public event EventHandler PauseChanged;
         public event EventHandler Complete;
 
-        public void FreeEvent()
-        {
-            // do nothing
-        }
-
-        private void FreeEvent(int[] lines, List<Block> lineBlocks)
-        {
-            // do nothing
-        }
-
         public Game(int lines = 20, int columns = 14, int startingLevel = 1, int filledLines = 0, int fillProb = 5, bool pickDifficultBlocks = false)
         {
-            Started += FreeEvent;
-            ShapeAdded += FreeEvent;
-            ShapeMoved += FreeEvent;
-            ShapeDropped += FreeEvent;
-            ShapeRotated += FreeEvent;
-            ShapeLanded += FreeEvent;
-            PauseChanged += FreeEvent;
-            Complete += FreeEvent;
-
-
             Blocks = new Block[columns, lines];
-            Reset(startingLevel, filledLines, fillProb, pickDifficultBlocks);
-        }
-
-        public void Reset(int startingLevel = 1, int filledLines = 0, int fillProb = 5, bool pickDifficultBlocks = false)
-        {
             _startingLevel = startingLevel;
             _pickDifficultBlocks = pickDifficultBlocks;
 
@@ -660,13 +634,13 @@ namespace Quadrapassel
                     minHeight = Math.Min(y, minHeight);
                     maxHeight = Math.Max(y + 1, maxHeight);
 
-                    var b = new Block
+                    var block = new Block
                     {
                         Color = shape.Type,
                         X = x,
                         Y = y
                     };
-                    shape.Blocks.Add(b);
+                    shape.Blocks.Add(block);
                 }
             }
             var blockWidth = maxWidth - minWidth;
@@ -679,11 +653,11 @@ namespace Quadrapassel
         private void LandShape()
         {
             /* Leave these blocks here */
-            foreach (var b in Shape.Blocks)
+            foreach (var block in Shape.Blocks)
             {
-                b.X += Shape.X;
-                b.Y += Shape.Y;
-                Blocks[b.X, b.Y] = b;
+                block.X += Shape.X;
+                block.Y += Shape.Y;
+                Blocks[block.X, block.Y] = block;
             }
 
             var fallDistance = 0;
@@ -712,7 +686,7 @@ namespace Quadrapassel
             }
             Array.Resize(ref lines, nLines);
 
-            List<Block> lineBlocks = new List<Block>();
+            var lineBlocks = new List<Block>();
             for (var y = Height - 1; y >= 0; y--)
             {
                 var explode = true;
@@ -842,7 +816,7 @@ namespace Quadrapassel
                 for (var y = 0; y < 4; y++)
                 {
                     if (blockTable[offset + y * 4 + x] != 0)
-                    {                     
+                    {
                         blocks.Add(new Block
                         {
                             Color = Shape.Type,
